@@ -71,6 +71,11 @@ class TestPunjabiNormalize(unittest.TestCase):
         )
         self.assertEqual(normalize_punjabi(gurmukhi), expected)
 
+    def test_virama_conjunct(self):
+        # ਸ੍ਰੀ ("srī", a common name/loanword pattern) exercises
+        # virama-based consonant clustering.
+        self.assertEqual(normalize_punjabi("ਸ੍ਰੀ"), "srī")
+
 
 if __name__ == "__main__":
     unittest.main()

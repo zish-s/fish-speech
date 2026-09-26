@@ -7,9 +7,8 @@ it's passed to the model, when the `normalize_punjabi` request flag is set.
 **Why** 
 Since raw Gurmukhi text and a plain Latin produce remarkably worse pronunciation than a 
 diacritic-marked Latin spelling. 
-This is based on *ISO 15919* official document ( which provides a standardized, reversible transliteration system for converting Gurmukhi script characters and marks into Latin characters with diacritics)
-(handles addak, bindi/tippi, Virama/Hasant (explicit schwa deletion) and )
-so users can type in Gurmukhi normally and get best possible pronunciation.
+The vowel and consonant symbols follow ISO 15919/IAST convention. 
+The schwa-deletion and addak-gemination rules are NOT part of ISO 15919 — that standard always writes the inherent vowel as 'a' and has no mechanism to drop it without an explicit virama. These are a separate, deliberate phonetic layer built on top.
 
 ## Vowels
 

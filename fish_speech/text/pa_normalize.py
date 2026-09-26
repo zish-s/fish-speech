@@ -11,11 +11,8 @@ Scheme summary (based on ISO 15919):
     addak doubles the next consonant, not the one before it.
     - Nasalization (bindi U+0A02 / tippi U+0A70) is marked with a
       trailing 'ṁ' attached to the syllable it modifies. Tippi is used in gemination for nasal consonants ਙ, ਞ, ਨ and ਮ.
-    - Tippi is used for nasalization of vowels, but bindi is used for nasalization of consonants.
     - Tippi before a non-nasal consonant (ਜ, ਬ, etc.) → nasalize the vowel before it. 
     ਪੰਜਾਬ → paṁjāb.
-    - Tippi before ਙ, ਞ, ਨ, or ਮ specifically → double that consonant, like addak does elsewhere. 
-    ਕੰਮ → kamm, not kaṁm.
     - The inherent vowel ("schwa") that bare consonant letters imply
       is dropped or kept using the rule in `_apply_schwa_deletion`
     - consonants mapped are from official Unicode Standard, Gurmukhi block chart.
@@ -44,7 +41,7 @@ VOWEL_SIGNS = {
 CONSONANTS = {
     "ਕ": "k", "ਖ": "kh", "ਗ": "g", "ਘ": "gh", "ਙ": "ṅ",
     "ਚ": "c", "ਛ": "ch", "ਜ": "j", "ਝ": "jh", "ਞ": "ñ",
-    "ਟ": "ṭ", "ਠ": "ṭh", "ਡ": "ḍ", "ਢ": "ḍh", "ਣ": "ṇ", "ੜ": "ṛ", //retroflex consonants
+    "ਟ": "ṭ", "ਠ": "ṭh", "ਡ": "ḍ", "ਢ": "ḍh", "ਣ": "ṇ", "ੜ": "ṛ", #retroflex consonants
     "ਤ": "t", "ਥ": "th", "ਦ": "d", "ਧ": "dh", "ਨ": "n",
     "ਪ": "p", "ਫ": "ph", "ਬ": "b", "ਭ": "bh", "ਮ": "m",
     "ਯ": "y", "ਰ": "r", "ਲ": "l", "ਵ": "v",
@@ -60,6 +57,7 @@ ADDAK = "\u0A71"  # ੱ gemination marker
 NUKTA = "\u0A3C"  # ਼ combining nukta
 BINDI = "\u0A02"  # ਂ nasalization
 TIPPI = "\u0A70"  # ੰ nasalization
+VIRAMA = "\u0A4D"  # ੍ explicitly cancels the schwa, forms a cluster
 
 PUNCTUATION = {"।": ".", "॥": "."}
 
@@ -73,8 +71,8 @@ def _tokenize_word(word: str) -> list[dict]:
 
     Each unit is a dict describing one syllable:
         kind: 'V' (independent vowel), 'CV' (consonant + explicit
-              vowel), or 'C' (bare consonant, a schwa-deletion
-              candidate)
+              vowel), 'C' (bare consonant, a schwa-deletion
+              candidate) or 'CO' (bare consonant with virama, schwa definitely cancelled)
         latin: the consonant/vowel's Latin form (already geminated
                if an addak applied)
         vowel: the explicit vowel's Latin form, only for kind 'CV'
@@ -109,8 +107,13 @@ def _tokenize_word(word: str) -> list[dict]:
                 latin = latin * 2
                 pending_gem = False
 
+            has_virama = False
+            if j < n and word[j] == VIRAMA:
+                has_virama = True
+                j += 1
+
             vowel = None
-            if j < n and word[j] in VOWEL_SIGNS:
+            if not has_virama and j < n and word[j] in VOWEL_SIGNS:
                 vowel = VOWEL_SIGNS[word[j]]
                 j += 1
 
@@ -120,7 +123,7 @@ def _tokenize_word(word: str) -> list[dict]:
                 j += 1
 
             units.append({
-                "kind": "CV" if vowel is not None else "C",
+                "kind": "C0" if has_virama else ("CV" if vowel is not None else "C"),
                 "latin": latin,
                 "vowel": vowel,
                 "nasal": nasal,
@@ -181,6 +184,9 @@ def _render_word(units: list[dict]) -> str:
                 out.append("a" + ("ṁ" if u["nasal"] else ""))
             elif u["nasal"]:
                 out.append("ṁ")
+        elif u["kind"] == "C0":
+            if u["nasal"]:
+                out.append("ṁ")
     return "".join(out)
 
 
@@ -207,7 +213,7 @@ def normalize_punjabi(text: str) -> str:
                 text[j] in INDEPENDENT_VOWELS
                 or _is_consonant(text[j])
                 or text[j] in VOWEL_SIGNS
-                or text[j] in (ADDAK, NUKTA, BINDI, TIPPI)
+                or text[j] in (ADDAK, NUKTA, BINDI, TIPPI, VIRAMA)
             ):
                 j += 1
             word = text[i:j]
@@ -219,3 +225,6 @@ def normalize_punjabi(text: str) -> str:
         i += 1
 
     return "".join(out)
+
+
+'''the above loop that decides how far a single "Gurmukhi word" extends before handing it off to _tokenize_word().
