@@ -169,7 +169,7 @@ hand-typed example.
 ## Testing status
 
 Verified exactly against the full worked example from the originating
-issue (fishaudio/fish-speech #1321), plus targeted unit tests for each
+issue, plus targeted unit tests for each
 rule above (addak, tippi/bindi nasalization, retroflex consonants,
 schwa-deletion alternation, virama, nukta consonants). Broader testing
 across a wider, more varied vocabulary is still needed before this should

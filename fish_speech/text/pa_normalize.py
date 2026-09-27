@@ -92,6 +92,7 @@ def _tokenize_word(word: str) -> list[dict]:
 
         if ch in INDEPENDENT_VOWELS:
             units.append({"kind": "V", "latin": INDEPENDENT_VOWELS[ch]})
+            pending_gem = False  # an orphan addak must not bleed past a vowel
             i += 1
             continue
 
@@ -123,7 +124,7 @@ def _tokenize_word(word: str) -> list[dict]:
                 j += 1
 
             units.append({
-                "kind": "C0" if has_virama else ("CV" if vowel is not None else "C"),
+                "kind": "CO" if has_virama else ("CV" if vowel is not None else "C"),
                 "latin": latin,
                 "vowel": vowel,
                 "nasal": nasal,
@@ -151,6 +152,12 @@ def _apply_schwa_deletion(units: list[dict]) -> None:
         anywhere) is resolved right-to-left, alternating starting
         with DELETE at the rightmost unit (e.g. [ਕ,ਰ] in ਕਰਕੇ ->
         ਰ deletes, ਕ keeps -> "kar"; ਲ in ਗੱਲ deletes -> "gall").
+      - KNOWN LIMITATION: for runs of length >= 3, this alternation
+      produces linguistically incorrect output. e.g. ਕਮਲ ("kamal")
+      -> "kmal", ਕਲਮ ("kalam") -> "klam". 
+      Fixing this requires a
+      real schwa-deletion model rather than a one-line tweak; see
+      PUNJABI_TRANSLITERATION.md "Known limitations" for context.
     """
     n = len(units)
     i = 0
@@ -184,7 +191,7 @@ def _render_word(units: list[dict]) -> str:
                 out.append("a" + ("ṁ" if u["nasal"] else ""))
             elif u["nasal"]:
                 out.append("ṁ")
-        elif u["kind"] == "C0":
+        elif u["kind"] == "CO":
             if u["nasal"]:
                 out.append("ṁ")
     return "".join(out)
@@ -227,4 +234,4 @@ def normalize_punjabi(text: str) -> str:
     return "".join(out)
 
 
-'''the above loop that decides how far a single "Gurmukhi word" extends before handing it off to _tokenize_word().
+'''the above loop that decides how far a single "Gurmukhi word" extends before handing it off to _tokenize_word().'''
