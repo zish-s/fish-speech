@@ -165,12 +165,19 @@ hand-typed example.
   compositional, so all common consonant/vowel/mark combinations are
   covered systematically, but it hasn't been fuzzed against exhaustive
   edge cases.
+- **Runs of three or more consecutive bare consonants are resolved incorrectly.** 
+  The right-to-left alternation rule (delete rightmost,
+  alternate) matches the issue's worked example but does not generalize:
+  `ਕਮਲ` ("kamal") is rendered `kmal`, `ਕਲਮ` ("kalam") as `klam`. A correct
+  rule requires a real schwa-deletion model, which is out of scope for this
+  first pass. This behaviour is pinned by a unit test so a future fix is a
+  visible change.
 
 ## Testing status
 
-Verified exactly against the full worked example from the originating
-issue, plus targeted unit tests for each
-rule above (addak, tippi/bindi nasalization, retroflex consonants,
-schwa-deletion alternation, virama, nukta consonants). Broader testing
-across a wider, more varied vocabulary is still needed before this should
-be trusted beyond the cases explicitly tested.
+Verified exactly against the worked example from the originating issue,
+**with the caveat that this scheme applies the macron consistently to `ੇ`
+(`karkē`/`mērā`) where the issue text renders it inconsistently
+(`karke`/`merā`)** — see "Open question for native-speaker review" above. 
+plus targeted unit tests for each rule above (addak, tippi/bindi nasalization, retroflex consonants,
+schwa-deletion alternation, virama, nukta consonants). 

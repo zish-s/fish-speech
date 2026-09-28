@@ -7,7 +7,8 @@ full mapping table and rationale.
 Scheme summary (based on ISO 15919):
     - Long vowels get a macron:              ā ī ū ē ō
     - Retroflex consonants get a dot below:   ṭ ṭh ḍ ḍh ṇ
-    - Gemination (addak, U+0A71) doubles the following consonant. addak gemination implemented is independently verified against ICANN's Gurmukhi script proposal.
+    - Gemination (addak, U+0A71) doubles the *following* consonant, not the
+    preceding one: ਗੱਲ (ਗ + ੱ + ਲ) -> "gall", not "ggal".
     addak doubles the next consonant, not the one before it.
     - Nasalization (bindi U+0A02 / tippi U+0A70) is marked with a
       trailing 'ṁ' attached to the syllable it modifies. Tippi is used in gemination for nasal consonants ਙ, ਞ, ਨ and ਮ.
