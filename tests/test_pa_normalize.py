@@ -66,8 +66,7 @@ class TestPunjabiNormalize(unittest.TestCase):
         # native-speaker review" — the difference is unresolved
         # pending native-speaker input, not a bug in this test.
         gurmukhi = (
-            "ਅੱਜ ਮੌਸਮ ਬਹੁਤ ਵਧੀਆ ਹੈ, ਤੇ ਤੁਹਾਡੇ ਨਾਲ ਗੱਲ ਕਰਕੇ "
-            "ਮੇਰਾ ਦਿਲ ਖੁਸ਼ ਹੋ ਗਿਆ।"
+            "ਅੱਜ ਮੌਸਮ ਬਹੁਤ ਵਧੀਆ ਹੈ, ਤੇ ਤੁਹਾਡੇ ਨਾਲ ਗੱਲ ਕਰਕੇ " "ਮੇਰਾ ਦਿਲ ਖੁਸ਼ ਹੋ ਗਿਆ।"
         )
         expected = (
             "ajj mausam bahut vadhīā hai, tē tuhāḍē nāl gall karkē "

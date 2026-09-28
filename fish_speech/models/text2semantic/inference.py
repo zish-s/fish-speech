@@ -17,13 +17,12 @@ import torch._inductor.config
 from loguru import logger
 from tqdm import tqdm
 
-from fish_speech.text.pa_normalize import normalize_punjabi
-
 from fish_speech.content_sequence import (
     TextPart,
     VQPart,
 )
 from fish_speech.conversation import Conversation, Message
+from fish_speech.text.pa_normalize import normalize_punjabi
 from fish_speech.tokenizer import IM_END_TOKEN
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"

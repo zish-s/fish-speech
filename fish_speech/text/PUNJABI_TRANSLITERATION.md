@@ -2,7 +2,8 @@
 
 This document specifies the mapping used in `fish_speech/text/pa_normalize.py`
 to convert Gurmukhi text into a diacritic-aware Latin transliteration before
-it's passed to the model, when the `normalize_punjabi` request flag is set.
+it's passed to the model, when the `--punjabi-normalize` flag of
+`fish_speech/models/text2semantic/inference.py` is set.
 
 ## Why
 
@@ -115,7 +116,7 @@ is the hardest part of the scheme. The rule implemented here:
    not inferred).
 2. A run of exactly one bare consonant that is **not** at the literal end
    of the word keeps its schwa.
-   - `ਵਧੀਆ` → `va`dhīā (ਵ is isolated, mid-word → keeps "a")
+   - `ਵਧੀਆ` → `vadhīā` (ਵ is isolated and not at the end of the word → keeps "a")
 3. Every other run — length 1 at the end of a word, or length 2+ anywhere
    — is resolved right-to-left, alternating starting with **delete** at
    the rightmost consonant of the run:
@@ -176,8 +177,9 @@ hand-typed example.
 ## Testing status
 
 Verified exactly against the worked example from the originating issue,
-**with the caveat that this scheme applies the macron consistently to `ੇ`
+with the caveat that this scheme applies the macron consistently to `ੇ`
 (`karkē`/`mērā`) where the issue text renders it inconsistently
-(`karke`/`merā`)** — see "Open question for native-speaker review" above. 
-plus targeted unit tests for each rule above (addak, tippi/bindi nasalization, retroflex consonants,
-schwa-deletion alternation, virama, nukta consonants). 
+(`karke`/`merā`) — see "Open question for native-speaker review" above.
+Targeted unit tests also cover each rule above (addak, tippi/bindi
+nasalization, retroflex consonants, schwa-deletion alternation, virama,
+nukta consonants). 

@@ -12,7 +12,7 @@ Scheme summary (based on ISO 15919):
     addak doubles the next consonant, not the one before it.
     - Nasalization (bindi U+0A02 / tippi U+0A70) is marked with a
       trailing 'ṁ' attached to the syllable it modifies. Tippi is used in gemination for nasal consonants ਙ, ਞ, ਨ and ਮ.
-    - Tippi before a non-nasal consonant (ਜ, ਬ, etc.) → nasalize the vowel before it. 
+    - Tippi before a non-nasal consonant (ਜ, ਬ, etc.) → nasalize the vowel before it.
     ਪੰਜਾਬ → paṁjāb.
     - The inherent vowel ("schwa") that bare consonant letters imply
       is dropped or kept using the rule in `_apply_schwa_deletion`
@@ -20,7 +20,7 @@ Scheme summary (based on ISO 15919):
     - when a consonant is immediately followed by virama, mark its schwa as definitively cancelled (no need to guess, since virama explicitly says so), consume the virama, and let the next consonant start fresh right after it.
     - for schwa deletion - we delete the schwa at the literal end of a word, and within a run of adjacent bare consonants, alternate delete/keep starting from the rightmost one — which exactly reproduces the one full worked example from the issue.
 
-LIMITATION: 
+LIMITATION:
     - The transliteration does not handle all possible combinations of consonants and vowels, especially in borrowed words or names. Some combinations may not be accurately represented in the Latin script.
     - The transliteration does not account for regional variations in pronunciation (out of scope), which may affect how certain letters are pronounced and thus how they should be transliterated.
     - the unmarked/implicit schwa deletion rule is not always accurate since its not a direct part of ISO 15919, and may result in incorrect transliterations for some words. This is a known limitation of the current implementation.
@@ -30,35 +30,80 @@ LIMITATION:
 """
 
 INDEPENDENT_VOWELS = {
-    "ਅ": "a", "ਆ": "ā", "ਇ": "i", "ਈ": "ī", "ਉ": "u",
-    "ਊ": "ū", "ਏ": "ē", "ਐ": "ai", "ਓ": "ō", "ਔ": "au",
+    "ਅ": "a",
+    "ਆ": "ā",
+    "ਇ": "i",
+    "ਈ": "ī",
+    "ਉ": "u",
+    "ਊ": "ū",
+    "ਏ": "ē",
+    "ਐ": "ai",
+    "ਓ": "ō",
+    "ਔ": "au",
 }
 
 VOWEL_SIGNS = {
-    "ਾ": "ā", "ਿ": "i", "ੀ": "ī", "ੁ": "u", "ੂ": "ū",
-    "ੇ": "ē", "ੈ": "ai", "ੋ": "ō", "ੌ": "au",
+    "ਾ": "ā",
+    "ਿ": "i",
+    "ੀ": "ī",
+    "ੁ": "u",
+    "ੂ": "ū",
+    "ੇ": "ē",
+    "ੈ": "ai",
+    "ੋ": "ō",
+    "ੌ": "au",
 }
 
 CONSONANTS = {
-    "ਕ": "k", "ਖ": "kh", "ਗ": "g", "ਘ": "gh", "ਙ": "ṅ",
-    "ਚ": "c", "ਛ": "ch", "ਜ": "j", "ਝ": "jh", "ਞ": "ñ",
-    "ਟ": "ṭ", "ਠ": "ṭh", "ਡ": "ḍ", "ਢ": "ḍh", "ਣ": "ṇ", "ੜ": "ṛ", #retroflex consonants
-    "ਤ": "t", "ਥ": "th", "ਦ": "d", "ਧ": "dh", "ਨ": "n",
-    "ਪ": "p", "ਫ": "ph", "ਬ": "b", "ਭ": "bh", "ਮ": "m",
-    "ਯ": "y", "ਰ": "r", "ਲ": "l", "ਵ": "v",
-    "ਸ": "s", "ਹ": "h",
+    "ਕ": "k",
+    "ਖ": "kh",
+    "ਗ": "g",
+    "ਘ": "gh",
+    "ਙ": "ṅ",
+    "ਚ": "c",
+    "ਛ": "ch",
+    "ਜ": "j",
+    "ਝ": "jh",
+    "ਞ": "ñ",
+    "ਟ": "ṭ",
+    "ਠ": "ṭh",
+    "ਡ": "ḍ",
+    "ਢ": "ḍh",
+    "ਣ": "ṇ",
+    "ੜ": "ṛ",  # retroflex consonants
+    "ਤ": "t",
+    "ਥ": "th",
+    "ਦ": "d",
+    "ਧ": "dh",
+    "ਨ": "n",
+    "ਪ": "p",
+    "ਫ": "ph",
+    "ਬ": "b",
+    "ਭ": "bh",
+    "ਮ": "m",
+    "ਯ": "y",
+    "ਰ": "r",
+    "ਲ": "l",
+    "ਵ": "v",
+    "ਸ": "s",
+    "ਹ": "h",
 }
 
 # Consonants formed with a nukta (਼) for borrowed sounds.
 NUKTA_CONSONANTS = {
-    "ਸ਼": "ś", "ਜ਼": "z", "ਖ਼": "x", "ਗ਼": "ġ", "ਫ਼": "f", "ਲ਼": "ḷ",
+    "ਸ਼": "ś",
+    "ਜ਼": "z",
+    "ਖ਼": "x",
+    "ਗ਼": "ġ",
+    "ਫ਼": "f",
+    "ਲ਼": "ḷ",
 }
 
-ADDAK = "\u0A71"  # ੱ gemination marker
-NUKTA = "\u0A3C"  # ਼ combining nukta
-BINDI = "\u0A02"  # ਂ nasalization
-TIPPI = "\u0A70"  # ੰ nasalization
-VIRAMA = "\u0A4D"  # ੍ explicitly cancels the schwa, forms a cluster
+ADDAK = "\u0a71"  # ੱ gemination marker
+NUKTA = "\u0a3c"  # ਼ combining nukta
+BINDI = "\u0a02"  # ਂ nasalization
+TIPPI = "\u0a70"  # ੰ nasalization
+VIRAMA = "\u0a4d"  # ੍ explicitly cancels the schwa, forms a cluster
 
 PUNCTUATION = {"।": ".", "॥": "."}
 
@@ -124,12 +169,16 @@ def _tokenize_word(word: str) -> list[dict]:
                 nasal = True
                 j += 1
 
-            units.append({
-                "kind": "CO" if has_virama else ("CV" if vowel is not None else "C"),
-                "latin": latin,
-                "vowel": vowel,
-                "nasal": nasal,
-            })
+            units.append(
+                {
+                    "kind": (
+                        "CO" if has_virama else ("CV" if vowel is not None else "C")
+                    ),
+                    "latin": latin,
+                    "vowel": vowel,
+                    "nasal": nasal,
+                }
+            )
             i = j
             continue
 
@@ -155,7 +204,7 @@ def _apply_schwa_deletion(units: list[dict]) -> None:
         ਰ deletes, ਕ keeps -> "kar"; ਲ in ਗੱਲ deletes -> "gall").
       - KNOWN LIMITATION: for runs of length >= 3, this alternation
       produces linguistically incorrect output. e.g. ਕਮਲ ("kamal")
-      -> "kmal", ਕਲਮ ("kalam") -> "klam". 
+      -> "kmal", ਕਲਮ ("kalam") -> "klam".
       Fixing this requires a
       real schwa-deletion model rather than a one-line tweak; see
       PUNJABI_TRANSLITERATION.md "Known limitations" for context.
@@ -235,4 +284,4 @@ def normalize_punjabi(text: str) -> str:
     return "".join(out)
 
 
-'''the above loop that decides how far a single "Gurmukhi word" extends before handing it off to _tokenize_word().'''
+"""the above loop that decides how far a single "Gurmukhi word" extends before handing it off to _tokenize_word()."""
